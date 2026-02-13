@@ -1,0 +1,2 @@
+# R package dependencies for plotModel.R
+ggplot2>=3.0.0
