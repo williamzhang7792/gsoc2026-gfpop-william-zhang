@@ -1,41 +1,25 @@
-# Prerequisites
-*.d
+# R
+.Rhistory
+.Rdata
+.RData
+.Rproj.user/
+*.Rproj
+.Renviron
+.Rprofile
 
-# Compiled Object files
-*.slo
-*.lo
+# C/C++ (for medium/hard tests)
 *.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
+*.d
 
-# Fortran module files
-*.mod
-*.smod
+# OS
+.DS_Store
+Thumbs.db
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# debug information files
-*.dwo
+# IDE
+.vscode/
+.idea/
+*.swp
+*~

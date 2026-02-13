@@ -42,3 +42,11 @@ run_main()
 ## Output
 
 ![output_plot.png](output_plot.png)
+
+## Reproducibility
+
+Generated with:
+
+- R 4.5.1 (2025-06-13)
+- ggplot2 4.0.2
+- Platform: aarch64-apple-darwin20 (macOS ARM64)

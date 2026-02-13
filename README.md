@@ -1,8 +1,10 @@
 # GSoC 2026 Qualification Tests: Time Dependent Constraints in gfpop
 
-**Author:** William (Weidong) Zhang
+**Author:** William (Weidong) Zhang -- [GitHub](https://github.com/williamzhang7792)
 
 **Project:** [Time dependent constraints in gfpop](https://github.com/rstats-gsoc/gsoc2026/wiki/Time-dependent-constraints-in-gfpop) -- R Project for Statistical Computing
+
+**Repository:** [gsoc2026-gfpop-william-zhang](https://github.com/williamzhang7792/gsoc2026-gfpop-william-zhang)
 
 ---
 
@@ -58,3 +60,9 @@ See [`1_easy/README.md`](1_easy/README.md) for instructions on running the scrip
 The [gfpop](https://github.com/vrunge/gfpop) package implements Graph-Constrained Functional Pruning Optimal Partitioning for changepoint detection. Currently it only supports constraints that are valid for **all** time points. The goal of this GSoC project is to extend gfpop to allow **time-dependent constraints**, enabling fast optimal solvers for models such as Labeled Optimal Partitioning (LOPART).
 
 The key idea is to add a `rule` argument so that different subsets of graph edges are used at different data points, controlled by an integer vector of rule IDs.
+
+## References
+
+- Runge et al., [gfpop: An R Package for Univariate Graph-Constrained Change-point Detection](https://arxiv.org/abs/2002.03646), 2020
+- Hocking et al., [LOPART: Labeled Optimal Partitioning](https://doi.org/10.1007/s00180-022-01238-z), 2022
+- [gfpop on CRAN](https://cran.r-project.org/package=gfpop) | [gfpop on GitHub](https://github.com/vrunge/gfpop)
