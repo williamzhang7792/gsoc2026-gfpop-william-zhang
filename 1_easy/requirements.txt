@@ -1,2 +1,3 @@
 # R package dependencies for plotModel.R
+gfpop>=1.1.1
 ggplot2>=3.0.0

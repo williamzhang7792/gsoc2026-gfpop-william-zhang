@@ -5,11 +5,14 @@ Visualize a changepoint model with time-dependent constraints as a state-rule ma
 ## Requirements
 
 - **R** (>= 4.0)
+- **gfpop** (>= 1.1.1) -- install from GitHub: `remotes::install_github("vrunge/gfpop")`
 - **ggplot2** (>= 3.0)
 
-Install the dependency from R:
+Install dependencies from R:
 
 ```r
+install.packages("remotes", repos = "https://cloud.r-project.org")
+remotes::install_github("vrunge/gfpop")
 install.packages("ggplot2", repos = "https://cloud.r-project.org")
 ```
 
@@ -32,7 +35,7 @@ run_main()
 
 ## What It Does
 
-1. **`create_mock_graph()`** -- builds a dataframe mimicking `gfpop::graph()` output with an added `rule` column, encoding the LOPART model (4 rules, 2 states).
+1. **`create_LOPART_graph()`** -- builds a real `gfpop::graph` using `gfpop::Edge()` calls, then manually adds a `rule` column (not yet supported by gfpop) to demonstrate the proposed time-dependent constraint API (4 rules, 2 states).
 2. **`plotModel(graph)`** -- takes the graph dataframe and produces a `ggplot2` visualization:
    - Nodes are arranged in a matrix (rows = states, columns = rules).
    - Directed arrows show allowed transitions.
