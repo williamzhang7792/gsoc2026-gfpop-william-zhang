@@ -1,6 +1,6 @@
 # GSoC 2026 — Time-Dependent Constraints in gfpop
 
-Implementations of the Easy, Medium, and Hard tests for the gfpop project.
+This repository contains my attempts at the Easy, Medium, and Hard tests for the gfpop project.
 
 ---
 
