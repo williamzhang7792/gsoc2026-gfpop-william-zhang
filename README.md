@@ -26,7 +26,7 @@ See [`1_easy/`](1_easy/) for code and instructions.
 
 ## Medium Test
 
-Implemented an unconstrained FPOP solver for optimal partitioning with Poisson loss. I adapted the `PeakSegOptimal` architecture from a 2-state constrained model to a 1-state unconstrained dynamic program, matching the output of `Segmentor3IsBack` while achieving empirical $O(N)$ performance.
+Implemented an unconstrained FPOP solver for optimal partitioning with Poisson loss. I adapted the `PeakSegOptimal` architecture from a 2-state constrained model to a 1-state unconstrained dynamic program. The implementation was validated against `Segmentor3IsBack`, matching its output while achieving empirical $O(N)$ performance.
 
 See [`2_medium/`](2_medium/) for code and usage instructions. I also prepared a short slide deck ([`algo.pdf`](2_medium/algo.pdf), compiled from `algo.tex`) outlining my current understanding of the FPOP pruning mechanics.
 
