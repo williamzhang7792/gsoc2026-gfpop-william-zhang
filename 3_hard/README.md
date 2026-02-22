@@ -13,4 +13,4 @@ Implement a regularized isotonic regression solver for the Normal/Gaussian loss 
 
 ## Status
 
-TODO
+In Progress

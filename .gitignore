@@ -1,4 +1,7 @@
+# ======================
 # R
+# ======================
+
 .Rhistory
 .Rdata
 .RData
@@ -7,19 +10,66 @@
 .Renviron
 .Rprofile
 
-# C/C++ (for medium/hard tests)
+# R build / package artifacts
+.Rcheck/
+*.tar.gz
+.Rtmp*
+
+# renv (if used)
+renv/library/
+renv/staging/
+renv/python/
+
+# ======================
+# C/C++ (medium/hard tests)
+# ======================
+
+# compiled objects / libraries
 *.o
 *.so
 *.dylib
 *.dll
 *.d
 
+# executables
+*.out
+*.exe
+a.out
+
+# build systems (Make/CMake/etc)
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+Makefile
+
+# coverage / profiling
+*.gcda
+*.gcno
+*.gcov
+
+# ======================
 # OS
+# ======================
+
 .DS_Store
 Thumbs.db
 
-# IDE
+# ======================
+# IDE / Editor
+# ======================
+
 .vscode/
 .idea/
+.cursor/
 *.swp
 *~
+
+# ======================
+# Logs / temp
+# ======================
+
+*.log
+tmp/
+temp/
