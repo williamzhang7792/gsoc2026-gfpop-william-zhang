@@ -402,6 +402,71 @@ Amortized over the whole sequence: empirically $O(n)$.
 \end{frame}
 
 % ------------------------------------------------------------------
+\begin{frame}{Seeing a Pruning Step}
+\begin{columns}[T]
+\begin{column}{0.44\textwidth}
+At each step the active set holds one cost curve per
+surviving candidate.
+
+\medskip
+
+The flat line at $K_t+\beta$ is the \textbf{ceiling}:
+if a candidate's curve sits entirely above it,
+that candidate is dead---it can never win for any
+future~$\mu$.
+
+\medskip
+
+\textcolor{segA}{Candidate $\tau_1$} dips below
+$\to$ survives.\\[2pt]
+\textcolor{gray}{Candidate $\tau_2$} is entirely above
+$\to$ \textbf{pruned}.
+
+\medskip
+
+On flat signals, new candidates are quickly pruned
+$\to$ the active set stays small $\to$ empirical $O(n)$.
+\end{column}
+\begin{column}{0.54\textwidth}
+\begin{tikzpicture}
+  \begin{axis}[
+    width=7.2cm, height=5.8cm,
+    domain=-0.5:3.5,
+    samples=80,
+    xlabel={$x=\log\mu$},
+    ylabel={cost},
+    ymin=-3, ymax=8,
+    axis lines=left,
+    grid=major,
+    grid style={gray!28, very thin},
+    legend pos=north east,
+    legend style={font=\footnotesize},
+    clip=true,
+  ]
+  % switch ceiling
+  \addplot[segB, thick, dashed] {3.5};
+  \addlegendentry{$K_t+\beta$}
+  % candidate tau_1: dips below the line
+  \addplot[segA, very thick] {1.8*exp(x) - 7*x};
+  \addlegendentry{$\tau_1$ (survives)}
+  % candidate tau_2: entirely above
+  \addplot[gray, thick, densely dashed] {0.6*exp(x) - 0.5*x + 4.2};
+  \addlegendentry{$\tau_2$ (pruned)}
+  % mark the survivor's minimum
+  \addplot[only marks, mark=*, mark size=3pt, segA]
+    coordinates {({ln(7/1.8)}, {1.8*(7/1.8) - 7*ln(7/1.8)})};
+  % "pruned" annotation on tau_2
+  \node[gray, font=\footnotesize, fill=white, inner sep=1.5pt]
+    at (axis cs:2.5,5.8) {pruned};
+  \draw[gray, dashed, line width=0.4pt, shorten >=3pt, shorten <=2pt]
+    (axis cs:2.5,5.8) -- (axis cs:2.2,5.0);
+  \end{axis}
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
 \begin{frame}{Implementation}
 Starting from \texttt{PeakSegOptimal}:
 
