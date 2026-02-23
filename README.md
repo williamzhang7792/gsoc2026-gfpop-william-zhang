@@ -14,7 +14,7 @@ This repository contains my attempts at the Easy, Medium, and Hard tests for the
 
 ## Easy Test
 
-Implemented an R function that takes a `gfpop::graph` (extended with a `rule` column) and visualizes the state–rule transition matrix using ggplot2.
+I wrote the R function that takes a `gfpop::graph` (extended with a `rule` column) and visualizes the state–rule transition matrix using ggplot2.
 
 Rows represent states, columns represent rules, and arrows indicate allowed transitions.
 
@@ -26,9 +26,9 @@ See [`1_easy/`](1_easy/) for code and instructions.
 
 ## Medium Test
 
-Implemented an unconstrained FPOP solver for optimal partitioning with Poisson loss. I adapted the `PeakSegOptimal` architecture from a 2-state constrained model to a 1-state unconstrained dynamic program. The implementation was validated against `Segmentor3IsBack`, matching its output while achieving empirical $O(N)$ performance.
+I implemented the unconstrained FPOP solver for optimal partitioning with Poisson loss, adapting the `PeakSegOptimal` architecture from a 2-state constrained model to a 1-state unconstrained dynamic program. The implementation was validated against `Segmentor3IsBack`, matching its output with empirical $O(N)$ performance.
 
-See [`2_medium/`](2_medium/) for code and usage instructions. I also prepared a short slide deck ([`algo.pdf`](2_medium/algo.pdf), compiled from `algo.tex`) outlining my current understanding of the FPOP pruning mechanics.
+See [`2_medium/`](2_medium/) for code and usage instructions. I also prepared a short slide deck ([`algo.pdf`](2_medium/algo.pdf), compiled from `algo.tex`) walking through my current understanding of the FPOP pruning mechanics.
 
 > Feedback or corrections are very welcome — I’m always looking to get a better understanding. :)
 
@@ -38,7 +38,9 @@ See [`2_medium/`](2_medium/) for code and usage instructions. I also prepared a 
 
 ## Hard Test
 
-Implemented a regularized isotonic regression solver for the Normal (Gaussian) loss. The key operator, `set_to_min_less_of`, enforces the non-decreasing constraint by sweeping a running minimum over the piecewise quadratic cost — tracing the curve downhill and then flatlining at the minimum. With `penalty=0`, this produces the same fitted values as `isoreg` (PAVA). Both `NormalLossPiece` and `PoissonLossPieceLog` inherit from a shared `LossPiece` base class.
+The solution to the hard test is somewhat public. It sits in gfpop’s `src`. However, the operator depends on assumptions from the graph abstraction and piecewise cost structure, so using it outside that framework is not out-of-the-box plug-and-play.
+
+I implemented the regularized isotonic regression solver for the Normal loss by reconstructing the core transformation in a simpler setting. The key operator, `set_to_min_less_of`, enforces the non-decreasing constraint by sweeping a running minimum over the piecewise quadratic cost, tracing the curve downhill and flattening at the minimum. With `penalty=0`, this matches the fitted values from `isoreg` (PAVA). Both `NormalLossPiece` and `PoissonLossPieceLog` inherit from a shared `LossPiece` base class for consistency across loss types.
 
 See [`3_hard/`](3_hard/) for code, tests, and design notes.
 
