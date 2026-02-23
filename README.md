@@ -50,23 +50,16 @@ See [`3_hard/`](3_hard/) for code, tests, and design notes.
 
 - Runge et al. (2020), *gfpop: Graph-Constrained Change-point Detection*  
   https://arxiv.org/abs/2002.03646
-
 - Maidstone et al. (2017), *On Optimal Multiple Changepoint Algorithms for Large Data*  
   https://doi.org/10.1007/s11222-016-9636-3
-
 - Hocking et al. (2022), *LOPART: Labeled Optimal Partitioning*  
   https://doi.org/10.1007/s00180-022-01238-z
-
 - PeakSegOptimal (GitHub)  
   https://github.com/tdhock/PeakSegOptimal
-
 - Segmentor3IsBack (CRAN)  
   https://cran.r-project.org/package=Segmentor3IsBack
-
 - gfpop (GitHub)  
   https://github.com/vrunge/gfpop
-
 - Barlow et al. (1972), *Statistical Inference under Order Restrictions* — isotonic regression reference
-
 - `isoreg` (R base) — used for Hard test validation  
   https://stat.ethz.ch/R-manual/R-devel/library/stats/html/isoreg.html
