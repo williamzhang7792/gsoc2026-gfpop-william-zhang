@@ -8,7 +8,7 @@ This repository contains my attempts at the Easy, Medium, and Hard tests for the
 
 - ✅ Easy — `plotModel(graph)` visualization
 - ✅ Medium — Unconstrained FPOP (Poisson loss)
-- 🚧 Hard — Regularized isotonic regression (Normal loss, in progress)
+- ✅ Hard — Regularized isotonic regression (Normal loss)
 
 ---
 
@@ -30,9 +30,19 @@ Implemented an unconstrained FPOP solver for optimal partitioning with Poisson l
 
 See [`2_medium/`](2_medium/) for code and usage instructions. I also prepared a short slide deck ([`algo.pdf`](2_medium/algo.pdf), compiled from `algo.tex`) outlining my current understanding of the FPOP pruning mechanics.
 
-Feedback or corrections are very welcome — I’m always looking to get a better understanding. :)
+> Feedback or corrections are very welcome — I’m always looking to get a better understanding. :)
 
 ![FPOP Pruning Trace](2_medium/pruning_demo.png)
+
+---
+
+## Hard Test
+
+Implemented a regularized isotonic regression solver for the Normal (Gaussian) loss. The key operator, `set_to_min_less_of`, enforces the non-decreasing constraint by sweeping a running minimum over the piecewise quadratic cost — tracing the curve downhill and then flatlining at the minimum. With `penalty=0`, this produces the same fitted values as `isoreg` (PAVA). Both `NormalLossPiece` and `PoissonLossPieceLog` inherit from a shared `LossPiece` base class.
+
+See [`3_hard/`](3_hard/) for code, tests, and design notes.
+
+![set_to_min_less_of](3_hard/set_to_min_less_of.png)
 
 ---
 

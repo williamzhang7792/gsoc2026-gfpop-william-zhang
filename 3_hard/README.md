@@ -1,35 +1,44 @@
 # Hard Test: Regularized Isotonic Regression (Normal Loss)
 
-A 1-state FPOP solver for regularized isotonic regression with Gaussian loss,
-adapted from the Medium test (`PoissonFPOP.cpp`).
+A 1-state FPOP solver for regularized isotonic regression with Gaussian (squared-error) loss.
 
-## What's implemented
+The goal of this implementation is to express isotonic regression within the FPOP framework and make the connection to PAVA explicit.
 
-- **`NormalLossPiece`** class with `Quadratic`, `Linear`, `Constant` coefficients
-  for `f(mu) = Q*mu^2 + L*mu + C`. Root-finding via the quadratic formula (`sqrt`
-  from `<math.h>`).
-- **`set_to_min_less_of`** operator enforcing the non-decreasing (isotonic)
-  constraint, adapted from gfpop's `operatorUp` / `intervalMinLessUp` /
-  `pastePieceUp`.
-- **Shared base class** (`LossPiece` in `LossPiece.h`): both `NormalLossPiece`
-  and `PoissonLossPieceLog` (in `PoissonFPOP.cpp`) inherit interval fields and
-  `clampToInterval`.
-- **`NormalFPOP(data, penalty)`** Rcpp export returning segment means, ends,
-  breakpoints, cost, and interval counts.
+## Key idea: PAVA ↔ FPOP, same solution in different spaces
+
+PAVA (Pool-Adjacent-Violators Algorithm) enforces monotonicity by pooling adjacent “violators” in **data space**.
+
+The 1-state FPOP formulation enforces the same constraint in **parameter space**.  
+The `set_to_min_less_of` operator performs a left-to-right running minimum of the cost function, with transition points determined by quadratic roots. In the end, both approaches produce identical fitted values.
+
+![set_to_min_less_of](set_to_min_less_of.png)
+
+The plot above shows this on a single quadratic cost: the operator traces the input curve (dashed) down to the argmin, then emits a flat line at the minimum cost. This is the geometric mechanism behind PAVA pooling.
+
+## What I implemented
+
+- **`NormalLossPiece`**: quadratic pieces \( f(\mu) = A\mu^2 + B\mu + C \), with closed-form roots.
+- **`set_to_min_less_of`**: isotonic operator (running minimum sweep), adapted from gfpop’s “up” operator logic.
+- **DP loop (`NormalFPOP`)**: medium-test structure extended with normal loss and the isotonic constraint.
+- **Shared base (`LossPiece.h`)**: common interval fields and `clampToInterval`, inherited by both `NormalLossPiece` and the Medium test’s `PoissonLossPieceLog`.
+
+## Design Decisions: OOP vs. Performance
+
+To satisfy the bonus objective, I introduced a `LossPiece` base class to hold shared interval fields and `clampToInterval`.  
+
+However, to preserve empirical performance, `PiecewiseNormalLoss` stores objects using value semantics (`std::list<NormalLossPiece>`) rather than heap-allocated polymorphic pointers. This avoids virtual dispatch overhead inside the inner \( O(N) \) dynamic programming loop while maintaining clean OOP structure.
+
+> If you see a way to simplify the operator logic, I'd love to hear your thoughts. :)
 
 ## Tests
 
-`test-NormalFPOP.R` covers:
-- penalty=0 vs `isoreg()` on sorted, decreasing, constant, and random data
-- non-decreasing data vs `fpop::Fpop()` at several penalties
-- edge cases (n=1, n=2, high penalty, isotonic invariant)
-- 200-trial random fuzz (normal, uniform-integer, large-magnitude distributions)
+`test-NormalFPOP.R` verifies:
+
+- penalty = 0 matches `isoreg()` (includes a 200-trial fuzz test)
+- comparisons against `fpop::Fpop()` on monotone-friendly inputs at multiple penalties
+- edge cases (n=1, n=2, constant data) and monotonicity invariants
 
 Run:
-```
+
+```bash
 Rscript test-NormalFPOP.R
-```
-
-## Status
-
-Complete.
