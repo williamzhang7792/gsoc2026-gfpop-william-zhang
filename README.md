@@ -54,3 +54,5 @@ See [`3_hard/`](3_hard/) for code, tests, and design notes.
 - [PeakSegOptimal on GitHub](https://github.com/tdhock/PeakSegOptimal)
 - [Segmentor3IsBack on CRAN](https://cran.r-project.org/package=Segmentor3IsBack)
 - [gfpop on GitHub](https://github.com/vrunge/gfpop)
+- Barlow et al., *Statistical Inference under Order Restrictions*, Wiley, 1972 — original PAVA paper
+- [isoreg (R base)](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/isoreg.html) — PAVA reference used for Hard test validation
