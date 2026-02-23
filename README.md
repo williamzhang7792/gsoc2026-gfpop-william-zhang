@@ -48,11 +48,25 @@ See [`3_hard/`](3_hard/) for code, tests, and design notes.
 
 ## References
 
-- Runge et al., [gfpop: Graph-Constrained Change-point Detection](https://arxiv.org/abs/2002.03646), 2020
-- Maidstone et al., [On Optimal Multiple Changepoint Algorithms for Large Data](https://doi.org/10.1007/s11222-016-9636-3), 2017
-- Hocking et al., [LOPART: Labeled Optimal Partitioning](https://doi.org/10.1007/s00180-022-01238-z), 2022
-- [PeakSegOptimal on GitHub](https://github.com/tdhock/PeakSegOptimal)
-- [Segmentor3IsBack on CRAN](https://cran.r-project.org/package=Segmentor3IsBack)
-- [gfpop on GitHub](https://github.com/vrunge/gfpop)
-- Barlow et al., *Statistical Inference under Order Restrictions*, Wiley, 1972 — original PAVA paper
-- [isoreg (R base)](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/isoreg.html) — PAVA reference used for Hard test validation
+- Runge et al. (2020), *gfpop: Graph-Constrained Change-point Detection*  
+  https://arxiv.org/abs/2002.03646
+
+- Maidstone et al. (2017), *On Optimal Multiple Changepoint Algorithms for Large Data*  
+  https://doi.org/10.1007/s11222-016-9636-3
+
+- Hocking et al. (2022), *LOPART: Labeled Optimal Partitioning*  
+  https://doi.org/10.1007/s00180-022-01238-z
+
+- PeakSegOptimal (GitHub)  
+  https://github.com/tdhock/PeakSegOptimal
+
+- Segmentor3IsBack (CRAN)  
+  https://cran.r-project.org/package=Segmentor3IsBack
+
+- gfpop (GitHub)  
+  https://github.com/vrunge/gfpop
+
+- Barlow et al. (1972), *Statistical Inference under Order Restrictions* — isotonic regression reference
+
+- `isoreg` (R base) — used for Hard test validation  
+  https://stat.ethz.ch/R-manual/R-devel/library/stats/html/isoreg.html
