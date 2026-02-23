@@ -1,16 +1,35 @@
-# Hard Test: Regularized Isotonic Regression with Normal Loss
+# Hard Test: Regularized Isotonic Regression (Normal Loss)
 
-Implement a regularized isotonic regression solver for the Normal/Gaussian loss function.
+A 1-state FPOP solver for regularized isotonic regression with Gaussian loss,
+adapted from the Medium test (`PoissonFPOP.cpp`).
 
-## Goal
+## What's implemented
 
-- Implement `NormalLossPiece` class with Constant, Linear, Quadratic coefficients
-- Provide `get_smaller_root` and `get_larger_root` implementations
-- Use `set_to_min_less_of` for the non-decreasing (isotonic) constraint
-- Ideally share a base class with `PoissonLossPieceLog`
-- Validate against `isoreg()` (penalty=0) and `Fpop` (non-decreasing changes)
-- Write `testthat` unit tests
+- **`NormalLossPiece`** class with `Quadratic`, `Linear`, `Constant` coefficients
+  for `f(mu) = Q*mu^2 + L*mu + C`. Root-finding via the quadratic formula (`sqrt`
+  from `<math.h>`).
+- **`set_to_min_less_of`** operator enforcing the non-decreasing (isotonic)
+  constraint, adapted from gfpop's `operatorUp` / `intervalMinLessUp` /
+  `pastePieceUp`.
+- **Shared base class** (`LossPiece` in `LossPiece.h`): both `NormalLossPiece`
+  and `PoissonLossPieceLog` (in `PoissonFPOP.cpp`) inherit interval fields and
+  `clampToInterval`.
+- **`NormalFPOP(data, penalty)`** Rcpp export returning segment means, ends,
+  breakpoints, cost, and interval counts.
+
+## Tests
+
+`test-NormalFPOP.R` covers:
+- penalty=0 vs `isoreg()` on sorted, decreasing, constant, and random data
+- non-decreasing data vs `fpop::Fpop()` at several penalties
+- edge cases (n=1, n=2, high penalty, isotonic invariant)
+- 200-trial random fuzz (normal, uniform-integer, large-magnitude distributions)
+
+Run:
+```
+Rscript test-NormalFPOP.R
+```
 
 ## Status
 
-In Progress
+Complete.

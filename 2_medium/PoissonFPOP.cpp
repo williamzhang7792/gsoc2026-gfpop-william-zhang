@@ -17,18 +17,16 @@
 #define ERROR_MIN_MAX_SAME 1
 #define ERROR_NEGATIVE_DATA 2
 
+#include "LossPiece.h"
+
 // --- data structures (from funPieceListLog.h) ---
 
 // single piece: Linear*exp(x) + Log*x + Constant in log-mean space
-class PoissonLossPieceLog {
+class PoissonLossPieceLog : public LossPiece {
 public:
   double Linear;
   double Log;
   double Constant;
-  double min_log_mean;
-  double max_log_mean;
-  int data_i;
-  double prev_log_mean;
   PoissonLossPieceLog();
   PoissonLossPieceLog(double li, double lo, double co,
                       double m, double M, int i, double prev);
@@ -57,14 +55,14 @@ public:
                        PoissonLossPieceListLog::iterator it1,
                        PoissonLossPieceListLog::iterator it2, int verbose);
   void push_piece(PoissonLossPieceListLog::iterator it,
-                  double min_log_mean, double max_log_mean);
+                  double min_mean, double max_mean);
   void add(double Linear, double Log, double Constant);
   void multiply(double x);
   void set_prev_seg_end(int prev_seg_end);
-  void findMean(double log_mean, int *seg_end, double *prev_log_mean);
+  void findMean(double log_mean, int *seg_end, double *prev_mean);
   double findCost(double log_mean);
   void Minimize(double *best_cost, double *best_log_mean,
-                int *data_i, double *prev_log_mean);
+                int *data_i, double *prev_mean);
   void print();
 };
 
@@ -74,13 +72,11 @@ bool sameFuns(PoissonLossPieceListLog::iterator it1,
 // --- PoissonLossPieceLog methods (unchanged from reference) ---
 
 PoissonLossPieceLog::PoissonLossPieceLog
-(double li, double lo, double co, double m, double M, int i, double prev){
-  Linear = li; Log = lo; Constant = co;
-  min_log_mean = m; max_log_mean = M;
-  data_i = i; prev_log_mean = prev;
-}
+(double li, double lo, double co, double m, double M, int i, double prev)
+  : LossPiece(m, M, i, prev), Linear(li), Log(lo), Constant(co) {}
 
-PoissonLossPieceLog::PoissonLossPieceLog(){}
+PoissonLossPieceLog::PoissonLossPieceLog()
+  : LossPiece(), Linear(0), Log(0), Constant(0) {}
 
 double PoissonLossPieceLog::argmin_mean(){
   return -Log / Linear;
@@ -148,10 +144,10 @@ bool PoissonLossPieceLog::has_two_roots(double equals){
 double PoissonLossPieceLog::get_larger_root(double equals){
   double optimal_mean = argmin_mean();
   double optimal_cost = PoissonLoss(optimal_mean);
-  double right_cost = getCost(max_log_mean);
+  double right_cost = getCost(max_mean);
   if((optimal_cost < right_cost && right_cost < equals) ||
      (optimal_cost > right_cost && right_cost > equals)){
-    return max_log_mean+1;
+    return max_mean+1;
   }
   double candidate_root = optimal_mean + 1;
   double candidate_cost, possibly_outside, deriv;
@@ -195,10 +191,10 @@ double PoissonLossPieceLog::get_larger_root(double equals){
 double PoissonLossPieceLog::get_smaller_root(double equals){
   double optimal_log_mean = argmin();
   double optimal_cost = getCost(optimal_log_mean);
-  double left_cost = getCost(min_log_mean);
+  double left_cost = getCost(min_mean);
   if((equals < left_cost && left_cost < optimal_cost) ||
      (equals > left_cost && left_cost > optimal_cost)){
-    return min_log_mean-1;
+    return min_mean-1;
   }
   double candidate_root = optimal_log_mean - 1;
   double candidate_cost, possibly_outside, deriv;
@@ -239,7 +235,7 @@ double PoissonLossPieceLog::get_smaller_root(double equals){
 void PoissonLossPieceLog::print(){
   Rprintf("%.10e %.10e %.10e %15f %15f %15f %d\n",
           Linear, Log, Constant,
-          min_log_mean, max_log_mean, prev_log_mean, data_i);
+          min_mean, max_mean, prev_mean, data_i);
 }
 
 // --- PiecewisePoissonLossLog methods (unchanged from reference) ---
@@ -267,11 +263,11 @@ void PiecewisePoissonLossLog::set_prev_seg_end(int prev_seg_end){
 }
 
 void PiecewisePoissonLossLog::findMean
-(double log_mean, int *seg_end, double *prev_log_mean){
+(double log_mean, int *seg_end, double *prev_mean){
   for(auto it=piece_list.begin(); it != piece_list.end(); it++){
-    if(it->min_log_mean <= log_mean && log_mean <= it->max_log_mean){
+    if(it->min_mean <= log_mean && log_mean <= it->max_mean){
       *seg_end = it->data_i;
-      *prev_log_mean = it->prev_log_mean;
+      *prev_mean = it->prev_mean;
       return;
     }
   }
@@ -280,7 +276,7 @@ void PiecewisePoissonLossLog::findMean
 
 double PiecewisePoissonLossLog::findCost(double mean){
   for(auto it=piece_list.begin(); it != piece_list.end(); it++){
-    if(it->min_log_mean <= mean && mean <= it->max_log_mean){
+    if(it->min_mean <= mean && mean <= it->max_mean){
       return it->getCost(mean);
     }
   }
@@ -289,22 +285,22 @@ double PiecewisePoissonLossLog::findCost(double mean){
 
 void PiecewisePoissonLossLog::Minimize
 (double *best_cost, double *best_log_mean,
- int *data_i, double *prev_log_mean){
+ int *data_i, double *prev_mean){
   double candidate_cost, candidate_log_mean;
   *best_cost = INFINITY;
   for(auto it=piece_list.begin(); it != piece_list.end(); it++){
     candidate_log_mean = it->argmin();
-    if(candidate_log_mean < it->min_log_mean){
-      candidate_log_mean = it->min_log_mean;
-    }else if(it->max_log_mean < candidate_log_mean){
-      candidate_log_mean = it->max_log_mean;
+    if(candidate_log_mean < it->min_mean){
+      candidate_log_mean = it->min_mean;
+    }else if(it->max_mean < candidate_log_mean){
+      candidate_log_mean = it->max_mean;
     }
     candidate_cost = it->getCost(candidate_log_mean);
     if(candidate_cost < *best_cost){
       *best_cost = candidate_cost;
       *best_log_mean = candidate_log_mean;
       *data_i = it->data_i;
-      *prev_log_mean = it->prev_log_mean;
+      *prev_mean = it->prev_mean;
     }
   }
 }
@@ -312,7 +308,7 @@ void PiecewisePoissonLossLog::Minimize
 void PiecewisePoissonLossLog::print(){
   Rprintf("%10s %10s %15s %15s %15s %15s %s\n",
           "Linear", "Log", "Constant",
-          "min_log_mean", "max_log_mean", "prev_log_mean", "data_i");
+          "min_mean", "max_mean", "prev_mean", "data_i");
   for(auto it=piece_list.begin(); it != piece_list.end(); it++){
     it->print();
   }
@@ -324,14 +320,14 @@ void PiecewisePoissonLossLog::print(){
 
 void PiecewisePoissonLossLog::set_to_unconstrained_min_of
 (PiecewisePoissonLossLog *input){
-  double best_cost, best_log_mean, prev_log_mean_val;
+  double best_cost, best_log_mean, prev_mean_val;
   int prev_seg_end;
-  input->Minimize(&best_cost, &best_log_mean, &prev_seg_end, &prev_log_mean_val);
+  input->Minimize(&best_cost, &best_log_mean, &prev_seg_end, &prev_mean_val);
   piece_list.clear();
   piece_list.emplace_back(
     0.0, 0.0, best_cost,
-    input->piece_list.front().min_log_mean,
-    input->piece_list.back().max_log_mean,
+    input->piece_list.front().min_mean,
+    input->piece_list.back().max_mean,
     prev_seg_end, best_log_mean);
 }
 
@@ -346,20 +342,20 @@ bool sameFuns
 }
 
 void PiecewisePoissonLossLog::push_piece
-(PoissonLossPieceListLog::iterator it, double min_log_mean, double max_log_mean){
-  if(max_log_mean <= min_log_mean) return;
+(PoissonLossPieceListLog::iterator it, double min_mean, double max_mean){
+  if(max_mean <= min_mean) return;
   PoissonLossPieceListLog::iterator last=piece_list.end();
   --last;
   if(piece_list.size() &&
      sameFuns(last, it) &&
-     it->prev_log_mean == last->prev_log_mean &&
+     it->prev_mean == last->prev_mean &&
      it->data_i == last->data_i){
-    last->max_log_mean = max_log_mean;
+    last->max_mean = max_mean;
   }else{
     piece_list.emplace_back(
       it->Linear, it->Log, it->Constant,
-      min_log_mean, max_log_mean,
-      it->data_i, it->prev_log_mean);
+      min_mean, max_mean,
+      it->data_i, it->prev_mean);
   }
 }
 
@@ -370,17 +366,17 @@ void PiecewisePoissonLossLog::push_min_pieces
  PoissonLossPieceListLog::iterator it2,
  int verbose){
   bool same_at_left;
-  double last_min_log_mean;
+  double last_min_mean;
   PoissonLossPieceListLog::iterator prev2 = it2;
   prev2--;
   PoissonLossPieceListLog::iterator prev1 = it1;
   prev1--;
-  if(it1->min_log_mean < it2->min_log_mean){
+  if(it1->min_mean < it2->min_mean){
     same_at_left = sameFuns(prev2, it1);
-    last_min_log_mean = it2->min_log_mean;
+    last_min_mean = it2->min_mean;
   }else{
-    last_min_log_mean = it1->min_log_mean;
-    if(it2->min_log_mean < it1->min_log_mean){
+    last_min_mean = it1->min_mean;
+    if(it2->min_mean < it1->min_mean){
       same_at_left = sameFuns(prev1, it2);
     }else{
       if(it1==fun1->piece_list.begin() &&
@@ -396,13 +392,13 @@ void PiecewisePoissonLossLog::push_min_pieces
   PoissonLossPieceListLog::iterator next1 = it1;
   next1++;
   bool same_at_right;
-  double first_max_log_mean;
-  if(it1->max_log_mean < it2->max_log_mean){
+  double first_max_mean;
+  if(it1->max_mean < it2->max_mean){
     same_at_right = sameFuns(next1, it2);
-    first_max_log_mean = it1->max_log_mean;
+    first_max_mean = it1->max_mean;
   }else{
-    first_max_log_mean = it2->max_log_mean;
-    if(it2->max_log_mean < it1->max_log_mean){
+    first_max_mean = it2->max_mean;
+    if(it2->max_mean < it1->max_mean){
       same_at_right = sameFuns(it1, next2);
     }else{
       if(next1==fun1->piece_list.end() &&
@@ -413,64 +409,64 @@ void PiecewisePoissonLossLog::push_min_pieces
       }
     }
   }
-  if(last_min_log_mean == first_max_log_mean) return;
+  if(last_min_mean == first_max_mean) return;
   if(sameFuns(it1, it2)){
-    push_piece(it1, last_min_log_mean, first_max_log_mean);
+    push_piece(it1, last_min_mean, first_max_mean);
     return;
   }
   PoissonLossPieceLog diff_piece(
     it1->Linear - it2->Linear,
     it1->Log - it2->Log,
     it1->Constant - it2->Constant,
-    last_min_log_mean, first_max_log_mean, -5, false);
-  double mid_mean = (exp(first_max_log_mean) + exp(last_min_log_mean))/2;
+    last_min_mean, first_max_mean, -5, false);
+  double mid_mean = (exp(first_max_mean) + exp(last_min_mean))/2;
   double cost_diff_mid = diff_piece.getCost(log(mid_mean));
   if(same_at_left && same_at_right){
     if(cost_diff_mid < 0){
-      push_piece(it1, last_min_log_mean, first_max_log_mean);
+      push_piece(it1, last_min_mean, first_max_mean);
     }else{
-      push_piece(it2, last_min_log_mean, first_max_log_mean);
+      push_piece(it2, last_min_mean, first_max_mean);
     }
     return;
   }
   if(diff_piece.Log == 0){
     if(diff_piece.Linear == 0){
       if(diff_piece.Constant < 0){
-        push_piece(it1, last_min_log_mean, first_max_log_mean);
+        push_piece(it1, last_min_mean, first_max_mean);
       }else{
-        push_piece(it2, last_min_log_mean, first_max_log_mean);
+        push_piece(it2, last_min_mean, first_max_mean);
       }
       return;
     }
     if(diff_piece.Constant == 0){
       if(diff_piece.Linear < 0){
-        push_piece(it1, last_min_log_mean, first_max_log_mean);
+        push_piece(it1, last_min_mean, first_max_mean);
       }else{
-        push_piece(it2, last_min_log_mean, first_max_log_mean);
+        push_piece(it2, last_min_mean, first_max_mean);
       }
       return;
     }
     double log_mean_at_equal_cost = log(-diff_piece.Constant/diff_piece.Linear);
-    if(last_min_log_mean < log_mean_at_equal_cost &&
-       log_mean_at_equal_cost < first_max_log_mean){
+    if(last_min_mean < log_mean_at_equal_cost &&
+       log_mean_at_equal_cost < first_max_mean){
       if(0 < diff_piece.Linear){
-        push_piece(it1, last_min_log_mean, log_mean_at_equal_cost);
-        push_piece(it2, log_mean_at_equal_cost, first_max_log_mean);
+        push_piece(it1, last_min_mean, log_mean_at_equal_cost);
+        push_piece(it2, log_mean_at_equal_cost, first_max_mean);
       }else{
-        push_piece(it2, last_min_log_mean, log_mean_at_equal_cost);
-        push_piece(it1, log_mean_at_equal_cost, first_max_log_mean);
+        push_piece(it2, last_min_mean, log_mean_at_equal_cost);
+        push_piece(it1, log_mean_at_equal_cost, first_max_mean);
       }
       return;
     }
     if(cost_diff_mid < 0){
-      push_piece(it1, last_min_log_mean, first_max_log_mean);
+      push_piece(it1, last_min_mean, first_max_mean);
     }else{
-      push_piece(it2, last_min_log_mean, first_max_log_mean);
+      push_piece(it2, last_min_mean, first_max_mean);
     }
     return;
   }
-  double cost_diff_left = diff_piece.getCost(last_min_log_mean);
-  double cost_diff_right = diff_piece.getCost(first_max_log_mean);
+  double cost_diff_left = diff_piece.getCost(last_min_mean);
+  double cost_diff_right = diff_piece.getCost(first_max_mean);
   bool two_roots = diff_piece.has_two_roots(0.0);
   double smaller_log_mean, larger_log_mean;
   if(two_roots){
@@ -481,23 +477,23 @@ void PiecewisePoissonLossLog::push_min_pieces
     if(two_roots){
       double log_mean_at_crossing = smaller_log_mean;
       double log_mean_at_optimum = diff_piece.argmin();
-      if(last_min_log_mean < log_mean_at_crossing &&
+      if(last_min_mean < log_mean_at_crossing &&
          log_mean_at_crossing < log_mean_at_optimum &&
-         log_mean_at_optimum < first_max_log_mean){
+         log_mean_at_optimum < first_max_mean){
         if(cost_diff_left < 0){
-          push_piece(it1, last_min_log_mean, log_mean_at_crossing);
-          push_piece(it2, log_mean_at_crossing, first_max_log_mean);
+          push_piece(it1, last_min_mean, log_mean_at_crossing);
+          push_piece(it2, log_mean_at_crossing, first_max_mean);
         }else{
-          push_piece(it2, last_min_log_mean, log_mean_at_crossing);
-          push_piece(it1, log_mean_at_crossing, first_max_log_mean);
+          push_piece(it2, last_min_mean, log_mean_at_crossing);
+          push_piece(it1, log_mean_at_crossing, first_max_mean);
         }
         return;
       }
     }
     if(cost_diff_mid < 0){
-      push_piece(it1, last_min_log_mean, first_max_log_mean);
+      push_piece(it1, last_min_mean, first_max_mean);
     }else{
-      push_piece(it2, last_min_log_mean, first_max_log_mean);
+      push_piece(it2, last_min_mean, first_max_mean);
     }
     return;
   }
@@ -505,34 +501,34 @@ void PiecewisePoissonLossLog::push_min_pieces
     if(two_roots){
       double log_mean_at_crossing = larger_log_mean;
       double log_mean_at_optimum = diff_piece.argmin();
-      if(last_min_log_mean < log_mean_at_optimum &&
+      if(last_min_mean < log_mean_at_optimum &&
          log_mean_at_optimum < log_mean_at_crossing &&
-         log_mean_at_crossing < first_max_log_mean){
+         log_mean_at_crossing < first_max_mean){
         if(cost_diff_right < 0){
-          push_piece(it2, last_min_log_mean, log_mean_at_crossing);
-          push_piece(it1, log_mean_at_crossing, first_max_log_mean);
+          push_piece(it2, last_min_mean, log_mean_at_crossing);
+          push_piece(it1, log_mean_at_crossing, first_max_mean);
         }else{
-          push_piece(it1, last_min_log_mean, log_mean_at_crossing);
-          push_piece(it2, log_mean_at_crossing, first_max_log_mean);
+          push_piece(it1, last_min_mean, log_mean_at_crossing);
+          push_piece(it2, log_mean_at_crossing, first_max_mean);
         }
         return;
       }
     }
     if(cost_diff_mid < 0){
-      push_piece(it1, last_min_log_mean, first_max_log_mean);
+      push_piece(it1, last_min_mean, first_max_mean);
     }else{
-      push_piece(it2, last_min_log_mean, first_max_log_mean);
+      push_piece(it2, last_min_mean, first_max_mean);
     }
     return;
   }
   double first_log_mean = INFINITY, second_log_mean = INFINITY;
   if(two_roots){
     bool larger_inside =
-      last_min_log_mean < larger_log_mean && larger_log_mean < first_max_log_mean;
+      last_min_mean < larger_log_mean && larger_log_mean < first_max_mean;
     bool smaller_inside =
-      last_min_log_mean < smaller_log_mean &&
+      last_min_mean < smaller_log_mean &&
       0 < exp(smaller_log_mean) &&
-      smaller_log_mean < first_max_log_mean;
+      smaller_log_mean < first_max_mean;
     if(larger_inside){
       if(smaller_inside && smaller_log_mean < larger_log_mean){
         first_log_mean = smaller_log_mean;
@@ -547,41 +543,41 @@ void PiecewisePoissonLossLog::push_min_pieces
     }
   }
   if(second_log_mean != INFINITY){
-    double before_mean = (exp(last_min_log_mean) + exp(first_log_mean))/2;
+    double before_mean = (exp(last_min_mean) + exp(first_log_mean))/2;
     double cost_diff_before = diff_piece.getCost(log(before_mean));
     if(cost_diff_before < 0){
-      push_piece(it1, last_min_log_mean, first_log_mean);
+      push_piece(it1, last_min_mean, first_log_mean);
       push_piece(it2, first_log_mean, second_log_mean);
-      push_piece(it1, second_log_mean, first_max_log_mean);
+      push_piece(it1, second_log_mean, first_max_mean);
     }else{
-      push_piece(it2, last_min_log_mean, first_log_mean);
+      push_piece(it2, last_min_mean, first_log_mean);
       push_piece(it1, first_log_mean, second_log_mean);
-      push_piece(it2, second_log_mean, first_max_log_mean);
+      push_piece(it2, second_log_mean, first_max_mean);
     }
   }else if(first_log_mean != INFINITY){
-    double before_mean = (exp(last_min_log_mean) + exp(first_log_mean))/2;
+    double before_mean = (exp(last_min_mean) + exp(first_log_mean))/2;
     double cost_diff_before = diff_piece.getCost(log(before_mean));
-    double after_mean = (first_max_log_mean + first_log_mean)/2;
+    double after_mean = (first_max_mean + first_log_mean)/2;
     double cost_diff_after = diff_piece.getCost(after_mean);
     if(cost_diff_before < 0){
       if(cost_diff_after < 0){
-        push_piece(it1, last_min_log_mean, first_max_log_mean);
+        push_piece(it1, last_min_mean, first_max_mean);
       }else{
-        push_piece(it1, last_min_log_mean, first_log_mean);
-        push_piece(it2, first_log_mean, first_max_log_mean);
+        push_piece(it1, last_min_mean, first_log_mean);
+        push_piece(it2, first_log_mean, first_max_mean);
       }
     }else{
       if(cost_diff_after < 0){
-        push_piece(it2, last_min_log_mean, first_log_mean);
-        push_piece(it1, first_log_mean, first_max_log_mean);
+        push_piece(it2, last_min_mean, first_log_mean);
+        push_piece(it1, first_log_mean, first_max_mean);
       }else{
-        push_piece(it2, last_min_log_mean, first_max_log_mean);
+        push_piece(it2, last_min_mean, first_max_mean);
       }
     }
   }else{
     double cost_diff;
-    if(first_max_log_mean == INFINITY){
-      cost_diff = diff_piece.getCost(last_min_log_mean+1);
+    if(first_max_mean == INFINITY){
+      cost_diff = diff_piece.getCost(last_min_mean+1);
     }else{
       if(ABS(cost_diff_mid) < NEWTON_EPSILON){
         cost_diff = cost_diff_right;
@@ -590,9 +586,9 @@ void PiecewisePoissonLossLog::push_min_pieces
       }
     }
     if(cost_diff < 0){
-      push_piece(it1, last_min_log_mean, first_max_log_mean);
+      push_piece(it1, last_min_mean, first_max_mean);
     }else{
-      push_piece(it2, last_min_log_mean, first_max_log_mean);
+      push_piece(it2, last_min_mean, first_max_mean);
     }
   }
 }
@@ -606,9 +602,9 @@ void PiecewisePoissonLossLog::set_to_min_env_of
   while(it1 != fun1->piece_list.end() &&
         it2 != fun2->piece_list.end()){
     push_min_pieces(fun1, fun2, it1, it2, verbose);
-    double last_max_log_mean = piece_list.back().max_log_mean;
-    if(it1->max_log_mean == last_max_log_mean) it1++;
-    if(it2->max_log_mean == last_max_log_mean) it2++;
+    double last_max_mean = piece_list.back().max_mean;
+    if(it1->max_mean == last_max_mean) it1++;
+    if(it2->max_mean == last_max_mean) it2++;
   }
 }
 
@@ -621,14 +617,14 @@ int PoissonFPOPunconstrainedLog
  int *end_vec,
  double *mean_vec,
  int *intervals_vec){
-  double min_log_mean=INFINITY, max_log_mean=-INFINITY;
+  double min_mean=INFINITY, max_mean=-INFINITY;
   for(int data_i=0; data_i<data_count; data_i++){
     if(data_vec[data_i] < 0) return ERROR_NEGATIVE_DATA;
     double log_data = log((double)data_vec[data_i]);
-    if(log_data < min_log_mean) min_log_mean = log_data;
-    if(max_log_mean < log_data) max_log_mean = log_data;
+    if(log_data < min_mean) min_mean = log_data;
+    if(max_mean < log_data) max_mean = log_data;
   }
-  if(min_log_mean == max_log_mean){
+  if(min_mean == max_mean){
     return ERROR_MIN_MAX_SAME;
   }
 
@@ -646,7 +642,7 @@ int PoissonFPOPunconstrainedLog
       // same init as PeakSegFPOPLog.cpp line 41
       cost->piece_list.emplace_back(
         1.0, -data_vec[0], 0.0,
-        min_log_mean, max_log_mean, -1, INFINITY);
+        min_mean, max_mean, -1, INFINITY);
     }else{
       // flat line at global min -- replaces set_to_min_less_of
       min_prev_cost.set_to_unconstrained_min_of(cost_prev);
@@ -667,12 +663,12 @@ int PoissonFPOPunconstrainedLog
   }
 
   // fill cost_vec and intervals; reuse last Minimize for backtracking
-  double best_cost, best_log_mean, prev_log_mean;
+  double best_cost, best_log_mean, prev_mean;
   int prev_seg_end;
   for(int i=0; i<data_count; i++){
     cost = &cost_model_mat[i];
     intervals_vec[i] = cost->piece_list.size();
-    cost->Minimize(cost_vec+i, &best_log_mean, &prev_seg_end, &prev_log_mean);
+    cost->Minimize(cost_vec+i, &best_log_mean, &prev_seg_end, &prev_mean);
   }
   best_cost = cost_vec[data_count-1];
 
@@ -686,10 +682,10 @@ int PoissonFPOPunconstrainedLog
   int out_i=1;
   while(0 <= prev_seg_end && out_i < data_count){
     cost = &cost_model_mat[prev_seg_end];
-    if(prev_log_mean != INFINITY){
-      best_log_mean = prev_log_mean;
+    if(prev_mean != INFINITY){
+      best_log_mean = prev_mean;
     }
-    cost->findMean(best_log_mean, &prev_seg_end, &prev_log_mean);
+    cost->findMean(best_log_mean, &prev_seg_end, &prev_mean);
     mean_vec[out_i] = exp(best_log_mean);
     end_vec[out_i] = prev_seg_end;
     out_i++;
