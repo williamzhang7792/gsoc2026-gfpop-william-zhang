@@ -713,7 +713,15 @@ Rcpp::List PoissonFPOP(Rcpp::IntegerVector data_vec, double penalty){
     Rcpp::stop("Negative values not allowed for Poisson loss");
   }
   if(status == ERROR_MIN_MAX_SAME){
-    Rcpp::stop("All data values are identical -- need at least 2 distinct values");
+    double val = (double)data_vec[0];
+    return Rcpp::List::create(
+      Rcpp::Named("mean") = Rcpp::NumericVector::create(val),
+      Rcpp::Named("end") = Rcpp::IntegerVector::create(-1),
+      Rcpp::Named("breaks") = Rcpp::IntegerVector(0),
+      Rcpp::Named("n.segments") = 1,
+      Rcpp::Named("cost") = 0.0,
+      Rcpp::Named("cost.vec") = Rcpp::NumericVector(n, 0.0),
+      Rcpp::Named("intervals") = Rcpp::IntegerVector(n, 1));
   }
 
   // end_vec is filled in reverse order; count valid entries

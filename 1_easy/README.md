@@ -40,7 +40,6 @@ gfpop doesn't have a `rule` column yet — that's the proposed extension. I add 
 ## Files
 
 - `plotModel.R` — entrypoint; defines `create_LOPART_graph()`, `plotModel()`, and runs both
-- `requirements.txt` — R package dependencies
 - `output_plot.png` — generated output
 
 ## Output

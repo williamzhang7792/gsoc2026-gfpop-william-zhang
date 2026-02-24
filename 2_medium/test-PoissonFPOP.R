@@ -158,9 +158,16 @@ test_that("n=2 works for both 1-segment and 2-segment outcomes", {
 
 # --- bad input ---
 
-test_that("rejects negative data and all-identical data", {
+test_that("rejects negative data", {
   expect_error(PoissonFPOP(as.integer(c(-1, 2, 3)), 5), "Negative")
-  expect_error(PoissonFPOP(as.integer(c(10, 10, 10)), 5), "identical")
+})
+
+# --- constant data ---
+
+test_that("constant data gives 1 segment at the constant value", {
+  fpop <- PoissonFPOP(as.integer(c(10, 10, 10)), 5)
+  expect_identical(as.integer(fpop$n.segments), 1L)
+  expect_equal(as.numeric(fpop$mean), 10, tolerance = 1e-6)
 })
 
 cat("\nAll tests passed!\n")

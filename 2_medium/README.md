@@ -31,13 +31,17 @@ Rscript PoissonFPOP.R        # comparison with Segmentor3IsBack
 Rscript test-PoissonFPOP.R   # testthat suite
 ```
 
-`PoissonFPOP.R` compiles the solver via `Rcpp::sourceCpp` and prints a penalty-by-penalty comparison. `test-PoissonFPOP.R` runs 8 test cases with 54 assertions.
+`PoissonFPOP.R` compiles the solver via `Rcpp::sourceCpp` and prints a penalty-by-penalty comparison. `test-PoissonFPOP.R` runs 9 test cases.
 
 To recompile the algorithm walkthrough:
 
 ```bash
 tectonic algo.tex    # or: pdflatex algo.tex
 ```
+
+## Implementation note
+
+The DP loop divides by cumulative weight at each step (`cost->multiply(1.0/cum_weight_i)`). This normalization is inherited from PeakSegOptimal's convention for the Poisson loss parameterization in log-mean space; the Hard test's Normal loss solver does not need it because the quadratic cost is expressed directly in mean space.
 
 ## Validation
 
@@ -50,7 +54,7 @@ Breakpoints and segment means match `Segmentor3IsBack::Segmentor(model=1)` exact
 | `PoissonFPOP.cpp` | Self-contained Rcpp solver (~760 lines); `PoissonLossPieceLog` inherits from `LossPiece` |
 | `LossPiece.h` | Shared base class (interval fields + `clampToInterval`), also used by Hard test |
 | `PoissonFPOP.R` | Compiles solver, runs side-by-side comparison with Segmentor3IsBack |
-| `test-PoissonFPOP.R` | `testthat` suite: 8 test cases, 54 assertions |
+| `test-PoissonFPOP.R` | `testthat` suite: 9 test cases |
 | `algo.tex` / `algo.pdf` | Algorithm walkthrough with worked example (Beamer slides) |
 | `reference/` | Study copies of PeakSegOptimal source I read while working |
 
