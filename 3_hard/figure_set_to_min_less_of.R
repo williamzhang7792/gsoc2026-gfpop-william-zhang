@@ -34,10 +34,10 @@ p <- ggplot(df, aes(x = mu, y = cost, color = curve, linetype = curve)) +
   annotate("label", x = 4, y = 3.3, label = expression(mu^"*" == 4),
            color = "grey30", hjust = 0.5, size = 3.8,
            fill = "white", linewidth = 0, label.padding = unit(0.2, "lines")) +
-  annotate("segment", x = 6.5, xend = 7.5, y = 4.5, yend = 1.15,
+  annotate("segment", x = 6.8, xend = 7.5, y = 5.0, yend = 1.3,
            arrow = arrow(length = unit(0.2, "cm"), type = "closed"),
            color = "#D55E00", linewidth = 0.5) +
-  annotate("text", x = 4.5, y = 5.2,
+  annotate("text", x = 4.5, y = 6.0,
            label = "flat: cost fixed at min\n(non-decreasing constraint)",
            color = "#D55E00", hjust = 0, size = 3.3) +
   labs(
