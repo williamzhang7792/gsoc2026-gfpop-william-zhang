@@ -64,6 +64,7 @@ Compiles `NormalFPOP.cpp` via `Rcpp::sourceCpp` and runs the full test suite.
 | `test-NormalFPOP.R` | `testthat` suite: isoreg comparison, fpop comparison, fuzz test, edge cases |
 | `figure_set_to_min_less_of.R` | Generates the operator visualization above |
 | `set_to_min_less_of.png` | Generated figure |
+| `reference/` | Study copies of gfpop source I read while working (gitignored) |
 
 ## References
 
