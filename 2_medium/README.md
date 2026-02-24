@@ -1,43 +1,37 @@
 # Medium Test: Unconstrained FPOP for Poisson Loss
 
-Implements the FPOP algorithm (Maidstone et al. 2016) for optimal partitioning with Poisson loss and no constraints, by adapting the constrained (up-down) solver from [PeakSegOptimal](https://github.com/tdhock/PeakSegOptimal).
+This implementation applies the FPOP algorithm (Maidstone et al. 2016) to optimal partitioning with Poisson loss and no constraints, adapted from PeakSegOptimal's constrained solver.
 
 For a step-by-step walkthrough of the algorithm with a worked example, see **[algo.pdf](algo.pdf)** (compiled from `algo.tex`).
 
 ## Approach
 
-The constrained solver uses two states (up/down) with `set_to_min_less_of` / `set_to_min_more_of` to enforce monotonicity between adjacent segment means. The unconstrained solver:
+PeakSegOptimal solves a 2-state (up/down) constrained problem using `set_to_min_less_of` / `set_to_min_more_of` to enforce monotonicity between adjacent segments. I stripped out the constraint layer to get a 1-state unconstrained solver:
 
-1. Replaces both with `set_to_unconstrained_min_of` (global minimum → flat piece)
-2. Simplifies the cost array from N x 2 to N x 1
-3. Reuses all piecewise function infrastructure (`set_to_min_env_of`, `Minimize`, root-finding, etc.)
+1. Replaced both monotonicity operators with `set_to_unconstrained_min_of` — this just finds the global minimum and emits a single flat piece.
+2. Collapsed the cost array from N × 2 (up/down states) to N × 1.
+3. Kept everything else intact: the piecewise function infrastructure (`set_to_min_env_of`, `Minimize`, Newton root-finding), the FPOP pruning rule, and the backtracking logic.
 
-## Files
+The key insight is that unconstrained FPOP is a strict simplification of the constrained case — removing constraints means fewer pieces to track per step, so the pruning is even more aggressive.
 
-| File | Description |
-|------|-------------|
-| `PoissonFPOP.cpp` | Self-contained Rcpp solver (~760 lines, mostly reused from `funPieceListLog`) |
-| `PoissonFPOP.R` | Compiles the solver and compares output with Segmentor3IsBack |
-| `test-PoissonFPOP.R` | `testthat` suite: 8 test cases, 54 assertions |
-| `algo.tex` / `algo.pdf` | Algorithm walkthrough with worked example (Beamer) |
-| `reference/` | Study copies of PeakSegOptimal source |
+## Quickstart
 
-## How to run
+Dependencies:
 
 ```r
 install.packages(c("Rcpp", "testthat"))
 remotes::install_github("cran/Segmentor3IsBack")
-
-setwd("2_medium")
-source("PoissonFPOP.R")      # comparison script
-source("test-PoissonFPOP.R") # tests
 ```
+
+Run:
 
 ```bash
 cd 2_medium
-Rscript PoissonFPOP.R
-Rscript test-PoissonFPOP.R
+Rscript PoissonFPOP.R        # comparison with Segmentor3IsBack
+Rscript test-PoissonFPOP.R   # testthat suite
 ```
+
+`PoissonFPOP.R` compiles the solver via `Rcpp::sourceCpp` and prints a penalty-by-penalty comparison. `test-PoissonFPOP.R` runs 8 test cases with 54 assertions.
 
 To recompile the algorithm walkthrough:
 
@@ -45,12 +39,30 @@ To recompile the algorithm walkthrough:
 tectonic algo.tex    # or: pdflatex algo.tex
 ```
 
-## Results
+## Validation
 
-All tests pass. Breakpoints and segment means match `Segmentor3IsBack::Segmentor(model=1)` exactly across 8 test cases (3-segment data, single changepoint, constant rate, 5-segment, zeros, penalty=0, n=2, bad input).
+Breakpoints and segment means match `Segmentor3IsBack::Segmentor(model=1)` exactly across all test cases: 3-segment Poisson data, single changepoint, constant rate, 5-segment, data with zeros, penalty=0, n=2, and bad-input handling.
 
-## Reference
+## Files
 
-- Original solver: [PeakSegFPOPLog.cpp](https://github.com/tdhock/PeakSegOptimal/blob/master/src/PeakSegFPOPLog.cpp)
-- Algorithm: Maidstone et al. 2016, "On Optimal Multiple Changepoint Algorithms for Large Data"
-- Ground truth: [Segmentor3IsBack](https://cran.r-project.org/package=Segmentor3IsBack)
+| File | Description |
+|------|-------------|
+| `PoissonFPOP.cpp` | Self-contained Rcpp solver (~760 lines); `PoissonLossPieceLog` inherits from `LossPiece` |
+| `LossPiece.h` | Shared base class (interval fields + `clampToInterval`), also used by Hard test |
+| `PoissonFPOP.R` | Compiles solver, runs side-by-side comparison with Segmentor3IsBack |
+| `test-PoissonFPOP.R` | `testthat` suite: 8 test cases, 54 assertions |
+| `algo.tex` / `algo.pdf` | Algorithm walkthrough with worked example (Beamer slides) |
+| `reference/` | Study copies of PeakSegOptimal source I read while working |
+
+## Output
+
+![FPOP Pruning Trace](pruning_demo.png)
+
+## References
+
+- Maidstone et al. (2016), *On Optimal Multiple Changepoint Algorithms for Large Data*  
+  https://doi.org/10.1007/s11222-016-9636-3
+- PeakSegOptimal (GitHub)  
+  https://github.com/tdhock/PeakSegOptimal
+- Segmentor3IsBack (CRAN)  
+  https://cran.r-project.org/package=Segmentor3IsBack

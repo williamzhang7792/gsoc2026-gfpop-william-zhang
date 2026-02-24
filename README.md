@@ -52,7 +52,7 @@ See [`3_hard/`](3_hard/) for code, tests, and design notes.
 
 - Runge et al. (2020), *gfpop: Graph-Constrained Change-point Detection*  
   https://arxiv.org/abs/2002.03646
-- Maidstone et al. (2017), *On Optimal Multiple Changepoint Algorithms for Large Data*  
+- Maidstone et al. (2016), *On Optimal Multiple Changepoint Algorithms for Large Data*  
   https://doi.org/10.1007/s11222-016-9636-3
 - Hocking et al. (2022), *LOPART: Labeled Optimal Partitioning*  
   https://doi.org/10.1007/s00180-022-01238-z
