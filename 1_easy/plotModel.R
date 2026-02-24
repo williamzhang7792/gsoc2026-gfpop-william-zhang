@@ -1,4 +1,4 @@
-# plotModel.R -- GSoC 2026 Easy Test
+# plotModel.R
 # Visualize a changepoint model with time-dependent constraints
 
 library(gfpop)
