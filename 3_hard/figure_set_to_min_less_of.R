@@ -17,10 +17,10 @@ cost_output <- ifelse(mu <= 4, cost_input, 1)
 df <- data.frame(
   mu   = rep(mu, 2),
   cost = c(cost_input, cost_output),
-  curve = rep(c("C(\u03bc)  [input]", "Q(\u03bc) = min C(\u03bc\u2019)  [output]"), each = length(mu))
+  curve = rep(c("C(mu)  [input]", "Q(mu) = min C(mu')  [output]"), each = length(mu))
 )
 df$curve <- factor(df$curve,
-  levels = c("C(\u03bc)  [input]", "Q(\u03bc) = min C(\u03bc\u2019)  [output]"))
+  levels = c("C(mu)  [input]", "Q(mu) = min C(mu')  [output]"))
 
 p <- ggplot(df, aes(x = mu, y = cost, color = curve, linetype = curve)) +
   geom_line(linewidth = 1.2) +
