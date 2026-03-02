@@ -1,5 +1,7 @@
 # Medium Test: Unconstrained FPOP for Poisson Loss
 
+> **Fork**: This solver is integrated into a [PeakSegOptimal fork](https://github.com/williamzhang7792/PeakSegOptimal) (C API, 28-test suite). This folder has the standalone Rcpp prototype from development.
+
 This implementation applies the FPOP algorithm (Maidstone et al. 2016) to optimal partitioning with Poisson loss and no constraints, adapted from PeakSegOptimal's constrained solver.
 
 For a step-by-step walkthrough of the algorithm with a worked example, see **[algo.pdf](algo.pdf)** (compiled from `algo.tex`).
@@ -16,22 +18,29 @@ The key insight is that unconstrained FPOP is a strict simplification of the con
 
 ## Quickstart
 
-Dependencies:
+### Via the PeakSegOptimal fork (recommended)
+
+```r
+devtools::install_github("williamzhang7792/PeakSegOptimal")
+remotes::install_github("cran/Segmentor3IsBack")  # optional
+
+library(testthat)
+test_file(system.file("tests/testthat/test-PoissonFPOPunconstrained.R",
+                       package = "PeakSegOptimal"))
+```
+
+### Standalone (Rcpp prototype)
 
 ```r
 install.packages(c("Rcpp", "testthat"))
 remotes::install_github("cran/Segmentor3IsBack")
 ```
 
-Run:
-
 ```bash
 cd 2_medium
 Rscript PoissonFPOP.R        # comparison with Segmentor3IsBack
-Rscript test-PoissonFPOP.R   # testthat suite
+Rscript test-PoissonFPOP.R   # testthat suite (9 tests)
 ```
-
-`PoissonFPOP.R` compiles the solver via `Rcpp::sourceCpp` and prints a penalty-by-penalty comparison. `test-PoissonFPOP.R` runs 9 test cases.
 
 To recompile the algorithm walkthrough:
 

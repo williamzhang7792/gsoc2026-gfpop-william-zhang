@@ -12,6 +12,19 @@ This repository contains my attempts at the Easy, Medium, and Hard tests for the
 
 ---
 
+## PeakSegOptimal fork
+
+Both solvers are integrated into a PeakSegOptimal fork with C registration, R wrappers, docs, and testthat suites. The standalone versions here use `Rcpp::sourceCpp`; the fork uses the package's native C API (`.C()`, `R_registerRoutines`).
+
+**https://github.com/williamzhang7792/PeakSegOptimal**
+
+| | C++ | R wrapper | Tests |
+|---|---|---|---|
+| **Medium** | [`PoissonFPOPunconstrained.cpp`](https://github.com/williamzhang7792/PeakSegOptimal/blob/main/src/PoissonFPOPunconstrained.cpp) | [`PoissonFPOPunconstrained.R`](https://github.com/williamzhang7792/PeakSegOptimal/blob/main/R/PoissonFPOPunconstrained.R) | [`test-PoissonFPOPunconstrained.R`](https://github.com/williamzhang7792/PeakSegOptimal/blob/main/tests/testthat/test-PoissonFPOPunconstrained.R) |
+| **Hard** | [`NormalFPOPisotonic.cpp`](https://github.com/williamzhang7792/PeakSegOptimal/blob/main/src/NormalFPOPisotonic.cpp) | [`NormalFPOPisotonic.R`](https://github.com/williamzhang7792/PeakSegOptimal/blob/main/R/NormalFPOPisotonic.R) | [`test-NormalFPOPisotonic.R`](https://github.com/williamzhang7792/PeakSegOptimal/blob/main/tests/testthat/test-NormalFPOPisotonic.R) |
+
+---
+
 ## Easy Test
 
 I wrote the R function that takes a `gfpop::graph` (extended with a `rule` column) and visualizes the state–rule transition matrix using ggplot2.

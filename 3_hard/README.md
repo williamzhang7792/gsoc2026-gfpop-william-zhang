@@ -1,5 +1,7 @@
 # Hard Test: Regularized Isotonic Regression (Normal Loss)
 
+> **Fork**: This solver is integrated into a [PeakSegOptimal fork](https://github.com/williamzhang7792/PeakSegOptimal) (C API, 17-test suite). This folder has the standalone Rcpp prototype from development.
+
 This implementation provides a 1-state FPOP solver for regularized isotonic regression with Gaussian (squared-error) loss, expressing isotonic regression within the FPOP framework and making the connection to PAVA explicit.
 
 ## Key idea: PAVA and FPOP solve the same problem in different spaces
@@ -31,22 +33,28 @@ However, `PiecewiseNormalLoss` stores pieces by value (`std::list<NormalLossPiec
 
 ## Quickstart
 
-Dependencies:
+### Via the PeakSegOptimal fork (recommended)
+
+```r
+devtools::install_github("williamzhang7792/PeakSegOptimal")
+install.packages("fpop")  # optional
+
+library(testthat)
+test_file(system.file("tests/testthat/test-NormalFPOPisotonic.R",
+                       package = "PeakSegOptimal"))
+```
+
+### Standalone (Rcpp prototype)
 
 ```r
 install.packages(c("Rcpp", "testthat"))
-# optional, for comparison tests:
-install.packages("fpop")
+install.packages("fpop")  # optional
 ```
-
-Run:
 
 ```bash
 cd 3_hard
-Rscript test-NormalFPOP.R
+Rscript test-NormalFPOP.R  # compiles via sourceCpp, runs full suite
 ```
-
-Compiles `NormalFPOP.cpp` via `Rcpp::sourceCpp` and runs the full test suite.
 
 ## Validation
 
